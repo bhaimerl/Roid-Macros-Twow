@@ -535,6 +535,11 @@ Roids.Keywords = {
     isplayer = function(conditionals)
         return UnitIsPlayer(conditionals.isplayer);
     end,
+
+	isboss = function(Conditionals)
+		return (UnitLevel("target")==-1);
+	end,
+	
     
     isnpc = function(conditionals)
         return not UnitIsPlayer(conditionals.isnpc);
