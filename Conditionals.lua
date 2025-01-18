@@ -336,6 +336,12 @@ function Roids.GetContainerItemCooldownByName(itemName)
     return nil;
 end
 
+-- CHecks if item with given name is in inventory and returns the count number
+function Roids.countItemByName(itemName) 
+	local count = pfUI.api.GetItemCount(itemName);
+	return count;
+end
+
 -- A list of Conditionals and their functions to validate them
 Roids.Keywords = {
     help = function(conditionals)
@@ -507,7 +513,13 @@ Roids.Keywords = {
         if not cd then cd = Roids.GetContainerItemCooldownByName(name) end
         return cd > 0;
     end,
-    
+	
+	isininv = function(conditionals)
+        local name = string.gsub(conditionals.isininv, "_", " ");
+		local count = Roids.countItemByName(name);
+		return count > 0;
+	end,
+	
     nocooldown = function(conditionals)
         local name = string.gsub(conditionals.nocooldown, "_", " ");
         local cd = Roids.GetSpellCooldownByName(name);
@@ -535,11 +547,14 @@ Roids.Keywords = {
     isplayer = function(conditionals)
         return UnitIsPlayer(conditionals.isplayer);
     end,
-
+	
 	isboss = function(Conditionals)
 		return (UnitLevel("target")==-1);
 	end,
 	
+	iscntusable = function(Conditionals) 
+		return IsUsableAction(102);
+	end,	
     
     isnpc = function(conditionals)
         return not UnitIsPlayer(conditionals.isnpc);
