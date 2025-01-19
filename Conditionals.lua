@@ -342,6 +342,27 @@ function Roids.countItemByName(itemName)
 	return count;
 end
 
+
+function sunders_needed() 
+--	Ability_Warrior_Riposte
+-- Expose Armor
+
+	local b,c,i;
+	for i = 1, 64 do b = UnitDebuff("target", i);
+		if b and strfind(b, "Ability_Warrior_Sunder") then 
+			b, c = UnitDebuff("target", i); 
+			break; 
+		end; 
+	end; 
+	if not c or c < 5 then 
+--		DEFAULT_CHAT_FRAME:AddMessage("sunders not up");
+		return true 
+	else 		
+--	DEFAULT_CHAT_FRAME:AddMessage("Sunders up");
+	return false 
+	end;
+end;
+
 -- A list of Conditionals and their functions to validate them
 Roids.Keywords = {
     help = function(conditionals)
@@ -555,6 +576,11 @@ Roids.Keywords = {
 	iscntusable = function(Conditionals) 
 		return IsUsableAction(102);
 	end,	
+	
+	sunderable = function(conditionals)
+		return sunders_needed();
+	end,
+	
     
     isnpc = function(conditionals)
         return not UnitIsPlayer(conditionals.isnpc);
