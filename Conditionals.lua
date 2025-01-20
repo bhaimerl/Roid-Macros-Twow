@@ -344,11 +344,15 @@ end
 
 
 function sunders_needed() 
---	Ability_Warrior_Riposte
+--	
 -- Expose Armor
 
 	local b,c,i;
 	for i = 1, 64 do b = UnitDebuff("target", i);
+		if b and strfind(b, "Ability_Warrior_Riposte") then 
+			DEFAULT_CHAT_FRAME:AddMessage("sunders not needed, expose is up!");		
+			return false;
+		end;
 		if b and strfind(b, "Ability_Warrior_Sunder") then 
 			b, c = UnitDebuff("target", i); 
 			break; 
