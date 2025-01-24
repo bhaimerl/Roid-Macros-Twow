@@ -12,7 +12,6 @@ function Roids.countItemByName(itemName)
 	return count;
 end;
 
-
 function sunders_needed() 
 --	
 -- Expose Armor
@@ -586,6 +585,11 @@ Roids.Keywords = {
 	isboss = function(Conditionals)
 		return (UnitLevel("target")==-1);
 	end,
+	
+	isaq40 = function(Conditionals)
+		return (GetZoneText()=="Ahn'Qiraj");
+	end,
+	
 		
 	sunderable = function(conditionals)
 		return sunders_needed();
