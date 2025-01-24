@@ -5,6 +5,38 @@
 local _G = _G or getfenv(0)
 local Roids = _G.Roids or {}
 
+
+-- CHecks if item with given name is in inventory and returns the count number
+function Roids.countItemByName(itemName) 
+	local count = pfUI.api.GetItemCount(itemName);
+	return count;
+end;
+
+
+function sunders_needed() 
+--	
+-- Expose Armor
+
+	local b,c,i;
+	for i = 1, 16 do b = UnitDebuff("target", i);
+		if b and strfind(b, "Ability_Warrior_Riposte") then 
+			--DEFAULT_CHAT_FRAME:AddMessage("sunders not needed, expose is up!");		
+			return false;
+		end;
+		if b and strfind(b, "Ability_Warrior_Sunder") then 
+			b, c = UnitDebuff("target", i); 
+			break; 
+		end; 
+	end; 
+	if not c or c < 5 then 
+--		DEFAULT_CHAT_FRAME:AddMessage("sunders not up");
+		return true 
+	else 		
+--	DEFAULT_CHAT_FRAME:AddMessage("Sunders up");
+	return false 
+	end;
+end;
+
 -- Validates that the given target is either friend (if [help]) or foe (if [harm])
 -- target: The unit id to check
 -- help: Optional. If set to 1 then the target must be friendly. If set to 0 it must be an enemy.
@@ -336,36 +368,9 @@ function Roids.GetContainerItemCooldownByName(itemName)
     return nil;
 end
 
--- CHecks if item with given name is in inventory and returns the count number
-function Roids.countItemByName(itemName) 
-	local count = pfUI.api.GetItemCount(itemName);
-	return count;
-end
 
 
-function sunders_needed() 
---	
--- Expose Armor
 
-	local b,c,i;
-	for i = 1, 64 do b = UnitDebuff("target", i);
-		if b and strfind(b, "Ability_Warrior_Riposte") then 
-			DEFAULT_CHAT_FRAME:AddMessage("sunders not needed, expose is up!");		
-			return false;
-		end;
-		if b and strfind(b, "Ability_Warrior_Sunder") then 
-			b, c = UnitDebuff("target", i); 
-			break; 
-		end; 
-	end; 
-	if not c or c < 5 then 
---		DEFAULT_CHAT_FRAME:AddMessage("sunders not up");
-		return true 
-	else 		
---	DEFAULT_CHAT_FRAME:AddMessage("Sunders up");
-	return false 
-	end;
-end;
 
 -- A list of Conditionals and their functions to validate them
 Roids.Keywords = {
@@ -522,6 +527,11 @@ Roids.Keywords = {
     hp = function(conditionals)
         return Roids.ValidateHp(conditionals.target, conditionals.hp.bigger, conditionals.hp.amount);
     end,
+	
+	canuse = function(conditionals)
+		local actionButtonNumber = string.gsub(conditionals.canuse, "_", " ");
+		return IsUsableAction(tonumber(actionButtonNumber));	
+	end,
     
     myhp = function(conditionals)
         return Roids.ValidateHp("player", conditionals.myhp.bigger, conditionals.myhp.amount);
@@ -576,11 +586,7 @@ Roids.Keywords = {
 	isboss = function(Conditionals)
 		return (UnitLevel("target")==-1);
 	end,
-	
-	iscntusable = function(Conditionals) 
-		return IsUsableAction(102);
-	end,	
-	
+		
 	sunderable = function(conditionals)
 		return sunders_needed();
 	end,
