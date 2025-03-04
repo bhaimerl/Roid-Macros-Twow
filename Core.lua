@@ -121,7 +121,6 @@ function Roids.parseMsg(msg)
             conditionals[w] = 1;
         end
     end
-    
 	return msg, conditionals;
 end
 
@@ -194,32 +193,29 @@ end
 -- action: A function that is being called when everything checks out
 function Roids.DoWithConditionals(msg, hook, fixEmptyTargetFunc, targetBeforeAction, action)
     local msg, conditionals = Roids.parseMsg(msg);
-    
     msg = Roids.Trim(msg);
     
     -- No conditionals. Just exit.
     if not conditionals then
-        if not msg then
-            return false;
-        else
-            if string.sub(msg, 1, 1) == "{" and string.sub(msg, -1) == "}" then
-                return Roids.ExecuteMacroByName(string.sub(msg, 2, -2));
-            end
-            
-            if hook then
-                hook(msg);
-            end
-            return true;
+        if not msg then return false end
+        
+        if string.sub(msg, 1, 1) == "{" and string.sub(msg, -1) == "}" then
+            return Roids.ExecuteMacroByName(string.sub(msg, 2, -2));
         end
+        
+        if hook then hook(msg) end
+        return true;
     end
     
-    if conditionals.target == "mouseover" then
+    local target = conditionals.target
+    if target == "mouseover" then
         if not UnitExists("mouseover") then
-            conditionals.target = Roids.mouseoverUnit;
+            target = Roids.mouseoverUnit;
         end
-        if not conditionals.target or (conditionals.target ~= "focus" and not UnitExists(conditionals.target)) then
+        if not target or (target ~= "focus" and not UnitExists(target)) then
             return false;
         end
+        conditionals.target = target
     end
     
     local needRetarget = false;
@@ -229,44 +225,38 @@ function Roids.DoWithConditionals(msg, hook, fixEmptyTargetFunc, targetBeforeAct
     
     Roids.SetHelp(conditionals);
     
-    if conditionals.target == "focus" then
-        if UnitExists("target") and UnitName("target") == Roids.GetFocusName() then
+    if target == "focus" then
+        local focusName = Roids.GetFocusName()
+        if UnitExists("target") and UnitName("target") == focusName then
             conditionals.target = "target";
             needRetarget = false;
         else
-            if not Roids.TryTargetFocus() then
-                return false;
-            end
+            if not Roids.TryTargetFocus() then return false end
             conditionals.target = "target";
             needRetarget = true;
         end
     end
     
+    -- Optimierte Bedingungsprüfung mit lokalem Zugriff auf Keywords
+    local keywords = Roids.Keywords
     for k, v in pairs(conditionals) do
-        if not Roids.Keywords[k] or not Roids.Keywords[k](conditionals) then
-            if needRetarget then
-                TargetLastTarget();
-                needRetarget = false;
-            end
+        local check = keywords[k]
+        if not check or not check(conditionals) then
+            if needRetarget then TargetLastTarget() end
             return false;
         end
     end
     
-    if conditionals.target ~= nil and targetBeforeAction then
-        if not UnitIsUnit("target", conditionals.target) then
+    if target ~= nil and targetBeforeAction then
+        if not UnitIsUnit("target", target) then
             needRetarget = true;
         end
-        
-        if SpellIsTargeting() then
-            SpellStopCasting()
-        end
 
-        TargetUnit(conditionals.target);
-    else
-        if needRetarget then
-            TargetLastTarget();
-            needRetarget = false;
-        end
+        if SpellIsTargeting() then SpellStopCasting() end
+        TargetUnit(target);
+    elseif needRetarget then
+        TargetLastTarget();
+        needRetarget = false;
     end
     
     local result = true;
@@ -276,9 +266,7 @@ function Roids.DoWithConditionals(msg, hook, fixEmptyTargetFunc, targetBeforeAct
         action(msg);
     end
     
-    if needRetarget then
-        TargetLastTarget();
-    end
+    if needRetarget then TargetLastTarget() end
     
     return result;
 end

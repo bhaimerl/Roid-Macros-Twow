@@ -527,6 +527,36 @@ Roids.Keywords = {
         return Roids.ValidateHp(conditionals.target, conditionals.hp.bigger, conditionals.hp.amount);
     end,
 	
+	slowmh = function(conditionals)
+		local slowmainhand = true;
+		local mainHandLink = GetInventoryItemLink("player", 16); 
+		local mainHandName = "";
+		if mainHandLink then 
+			mainHandName = string.match(mainHandLink, "%[(.-)%]"); 
+		end;
+		if mainHandName == "The Hungering Cold" then 
+			slowmainhand = false;
+		else 
+			slowmainhand = true;
+		end;
+		return slowmainhand;
+	end,	
+	
+	fastmh = function(conditionals)
+		local fastmainhand = false;
+		local mainHandLink = GetInventoryItemLink("player", 16); 
+		local mainHandName = "";
+		if mainHandLink then 
+			mainHandName = string.match(mainHandLink, "%[(.-)%]"); 
+		end;
+		if mainHandName == "The Hungering Cold" then 
+			fastmainhand = true;
+		else 
+			fastmainhand = false;
+		end;
+		return fastmainhand;
+	end,		
+	
 	canuse = function(conditionals)
 		local actionButtonNumber = string.gsub(conditionals.canuse, "_", " ");
 		return IsUsableAction(tonumber(actionButtonNumber));	
@@ -553,7 +583,7 @@ Roids.Keywords = {
 		local count = Roids.countItemByName(name);
 		return count > 0;
 	end,
-	
+
     nocooldown = function(conditionals)
         local name = string.gsub(conditionals.nocooldown, "_", " ");
         local cd = Roids.GetSpellCooldownByName(name);
@@ -582,11 +612,11 @@ Roids.Keywords = {
         return UnitIsPlayer(conditionals.isplayer);
     end,
 	
-	isboss = function(Conditionals)
+	isboss = function(conditionals)
 		return (UnitLevel("target")==-1);
 	end,
 	
-	isaq40 = function(Conditionals)
+	isaq40 = function(conditionals)
 		return (GetZoneText()=="Ahn'Qiraj");
 	end,
 	
